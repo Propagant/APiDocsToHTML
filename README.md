@@ -194,7 +194,7 @@ Instead of attributes, categories might also contain a root category that the sp
 |#Text=Something about startup... This belongs to the Introduction readonly category
 |>Installation|Advanced
 |#Title=Installation
-|#Text=Something about installation... This belongs to the Installation readonly category
+|#Text=Something about installation... This belongs to the Advanced readonly category
 ```
 
 Readonly categories are allowed to use a certain 'sorting number' which will tell the compiler which category should be rendered first and which last. It's possible to sort categories from 0(first) to 9(last).\
