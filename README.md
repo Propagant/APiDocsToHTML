@@ -6,6 +6,9 @@ Written by Matej Vanco 2022, [https://matejvanco.com](https://matejvanco.com) (M
 **Programming Language:** C#\
 **Framework:** .NET 4.7.2\
 **Platform:** Windows, OSX, Linux
+**Version:** First release (19/01/2023)\
+Not properly tested, used for my own purposes.\
+Please reach me out if you face any problems or issues.
 
 # Why?
 All programmers know how painful it is to document a code/APi in a readable format for all human beings. This simple tool allows you to create custom APi databases that can be later converted to the HTML pages. Personally I needed to save some time and I wanted to document my code much effectively.
