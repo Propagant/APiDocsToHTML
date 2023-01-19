@@ -1,0 +1,36 @@
+﻿<Properties>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workbench ActiveDocument="APi_SourceFiles/Templates/style.css">
+    <Files>
+      <File FileName="APi_SourceFiles/APiBase.cs" Line="22" Column="1" />
+      <File FileName="APi_SourceFiles/APiElement.cs" Line="1" Column="1" />
+      <File FileName="APi_SourceFiles/APiHTMLExport.cs" Line="72" Column="14" />
+      <File FileName="APi_SourceFiles/APiUtils.cs" Line="2" Column="1" />
+      <File FileName="APi_SourceFiles/APiIdentity.cs" Line="17" Column="2" />
+      <File FileName="APi_SourceFiles/APiCategory.cs" Line="15" Column="10" />
+      <File FileName="APi_SourceFiles/Templates/apiDocs.txt" Line="1" Column="1" />
+      <File FileName="APi_SourceFiles/Templates/style.css" Line="34" Column="1" />
+      <File FileName="APi_SourceFiles/Templates/html.html" Line="24" Column="6" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="APiDocsToHTML" expanded="True">
+            <Node name="APiDocsToHTML" expanded="True">
+              <Node name="APi_SourceFiles" expanded="True">
+                <Node name="Templates" expanded="True">
+                  <Node name="style.css" selected="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+</Properties>
