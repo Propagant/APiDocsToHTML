@@ -1,6 +1,7 @@
 # APiDocsToHTML
 Simple convertor from custom APi documentation to the readable HTML documentation.\
-Convert your code to the readable APi documentation in a markup HTML style.
+Convert your code to the readable APi documentation in a markup HTML style.\
+Written by Matej Vanco 2022, [https://matejvanco.com](https://matejvanco.com) (MIT License)
 
 **Programming Language:** C#\
 **Framework:** .NET 4.7.2\
@@ -106,4 +107,96 @@ if (!apib.ApiExportDocument("TestingDocument", "Testing", apib.DefaultPath+"/Exp
 
 Console.WriteLine("Export successful!");
 ```
+# APi Document
+It's a mandatory to know how the APi documents work and how to write them. The APiDocsToHTML converts your code in a following order:
 
+**1. Create an APi document with your code that you'd like to export\
+2. Load the document to the APiBase class\
+3. Load HTML+CSS templates\
+4. Export**
+
+Creating APi documents is an easy process. Supported file format is a well known .txt format. Create a new txt document and now you can start writing your custom "documentation" that will be later converted to the markup HTML format.
+
+See the following example
+```text
+	> DOCUMENT DATA <
+
+|>Introduction|Space<|
+
+|>Intro|Introduction
+|#Title=This is a regular Title
+|#Text=This is a regular Text element... You can create as many elements as you want.
+
+You can also create spaces!	And tabs!
+
+<b>You can also use html macros!</b> <i>Yeah!</i>
+|#
+
+|#Code=And this is code...
+
+int number = 5;
+string lmao = "hello world";
+```
+It might look complicated at a first sight, but believe me, it's easy! Check the official syntax for APi documents.
+
+## Syntax
+
+- The official conversion starts below `> DOCUMENT DATA <` macro
+- Categories, that will contain certain elements use symbol `|>`
+- Readonly categories (without any elements) use symbol `|>` and must end with symbol `<|`
+- Category-Elements use symbol `|#`
+- Everything below certain category belongs to the specific category
+- Everything that doesn't start with the category symbol or element symbol will belong to the currently selected element as a CONTENT
+- Element syntax is as follows: **|#STYLECLASS=CONTENT** (use regular tabs/line breaks to create a much organized content)
+- The only available style classes are as follow: **Title, Text, Code**
+- It's fine to use blank spaces for better organisation
+- There are some styling options for custom code-formation:
+    - Code-type: `<ct></c>`
+    - Code-comment: `<cc></c>`
+    - Code-keyword: `<ck></c>`
+    - Code-string content: `<cs></c>`
+- NOTICE that all the styling hashes end with `</c>`. It's just a little shortcut
+- In case you would like to automate the code-formatting, you can try to use my custom regex pattern (especially written for C#).\
+Class: **APiHTMLExport.CodeHTMLStyles**
+
+## Category Attributes
+All categories are allowed to use certain attributes or category root (more below). The current version contains just one built-in attribute **'Space'** which makes a little space above the drawn category.\
+This might help you to make the navigation panel more readable and organized with spaces. See the example below.
+
+```text
+> DOCUMENT DATA <
+
+|>Hello World|Space
+|#Title=Hello World! My category has a little space above...
+|>Bye World|Space
+|#Title=This category has a little space above too...
+|>Well Bye
+|#Title=This has not!
+```
+It's possible to use just one attribute per-category. Both readonly categories and regular (with elements) categories are allowed to use one attribute.
+
+## Category Sorting
+It's possible to sort categories and create much clearer navigation panel. As mentioned above, categories might contain specific attributes (in the current version it's just one built-in attribute).
+Instead of attributes, categories might also contain a root category that the specific category will belong to. The best practice for this is to use a readonly category as a root category. See the example below.
+
+```text
+> DOCUMENT DATA <
+
+|>0Introduction<|
+|>1Advanced|Space<|
+
+|>Startup|Introduction
+|#Title=Startup
+|#Text=Something about startup... This belongs to the Introduction readonly category
+|>Installation|Advanced
+|#Title=Installation
+|#Text=Something about installation... This belongs to the Installation readonly category
+```
+
+Readonly categories are allowed to use a certain 'sorting number' which will tell the compiler which category should be rendered first and which last. It's possible to sort categories from 0(first) to 9(last).\
+Regular categories (with elements) are not allowed to use the 'sorting number'. That's one of the reasons why to use read-only categories for nested sorting.\
+If a readonly category does not contain a sorting number, its default priority is always 9 (the latest).\
+If a regular category has an attribute to join to one of the regular categories, its sorting number will be based on its first letter (a-first, z-last).
+
+# Templates
+APiDocsToHTML uses a custom html and css styles that I wrote for my purpose. If you would like to modify these templates, you can go to the *project solution/SourceFiles/Templates*. Both templates must contain certain macros that are defined in the APiBase classes & APiHTMLExport. Please see these rules/macros properly in the source file. However you are very free to edit/modify these templates as mentioned!
