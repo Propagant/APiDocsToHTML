@@ -111,7 +111,7 @@ if (!apib.ApiExportDocument("TestingDocument", "Testing", apib.DefaultPath+"/Exp
 Console.WriteLine("Export successful!");
 ```
 # APi Document
-It's a mandatory to know how the APi documents work and how to write them. The APiDocsToHTML converts your code in a following order:
+It's required to know how the APi documents work and how to write them. The APiDocsToHTML converts your code in a following order:
 
 **1. Create an APi document with your code that you'd like to export\
 2. Load the document to the APiBase class\
