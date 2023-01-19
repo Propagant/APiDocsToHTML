@@ -20,7 +20,7 @@ Follow the steps below for proper installation of the source project
 # Usage
 You can use the source project to build a dll file for your project (to use the APiDocsToHTML as a reference) or you can simply go to the APiDocsToHTML directory/bin and attach the generated dll file to your project.
 
-Once your project has an access to the APiDocsToHTML namespace, you can generate an existing APiDocsToHTML document to the HTML documentation. See the example below. The following example runs with a regular C# Console Application.
+Once your project has an access to the APiDocsToHTML namespace, you can generate an existing APiDocsToHTML document to the HTML documentation. See the example below. The following example runs in a regular C# Console Application.
 
 ```C#
 APiBase apib = new APiBase(@"E:\APiDocsToHTML_Test", out bool success);
@@ -145,6 +145,7 @@ It might look complicated at a first sight, but believe me, it's easy! Check the
 - Categories, that will contain certain elements use symbol `|>`
 - Readonly categories (without any elements) use symbol `|>` and must end with symbol `<|`
 - Category-Elements use symbol `|#`
+- You can end a specific element content with empty element symbol `|#`
 - Everything below certain category belongs to the specific category
 - Everything that doesn't start with the category symbol or element symbol will belong to the currently selected element as a CONTENT
 - Element syntax is as follows: **|#STYLECLASS=CONTENT** (use regular tabs/line breaks to create a much organized content)
