@@ -23,10 +23,8 @@ namespace APiDocsToHtml
         /// Category custom attribute = |EXISTING CATEGORY NAME (This will create a subcategory) or |Space (makes a space above)
         /// </summary>
         public string parentAttribute;
-        public bool HasAttribute()
-        {
-            return !string.IsNullOrEmpty(parentAttribute);
-        }
+        public bool HasAttribute() => !string.IsNullOrEmpty(parentAttribute);
+        
         /// <summary>
         /// Readonly categories can't have any content and will indicate to a readonly text in the navbar
         /// </summary>

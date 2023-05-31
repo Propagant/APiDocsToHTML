@@ -11,21 +11,15 @@ namespace APiDocsToHtml
         /// <summary>
         /// Makes the entry string HTML friendly! Replaces tabs, new lines etc to the html styles
         /// </summary>
-        public static string MakeHTMLFriendly(this string str)
-        {
-            return str.Replace(Environment.NewLine, "<br>").Replace("\n", "<br>").Replace("\t", "&emsp;").Replace("    ","&emsp;");
-        }
-
+        public static string MakeHTMLFriendly(this string str) => str.Replace(Environment.NewLine, "<br>").Replace("\n", "<br>").Replace("\t", "&emsp;").Replace("    ","&emsp;");
+        
         /// <summary>
-        /// Replace spaces in a current string with underscore(_) and trim in both sides
+        /// Replace spaces in the current string with underscore(_) and trim in both sides
         /// </summary>
-        public static string RemoveSpacesAndTrim(this string str)
-        {
-            return str.Replace(" ", "_").Trim();
-        }
-
+        public static string RemoveSpacesAndTrim(this string str) => str.Replace(" ", "_").Trim();
+        
         /// <summary>
-        /// Returns the category name only without any attributes
+        /// Returns only the category name without any attributes
         /// </summary>
         public static string GetCategoryNameOnly(this string str, out bool hasAttributes)
         {
@@ -78,10 +72,11 @@ namespace APiDocsToHtml
         /// </summary>
         public struct Color
         {
-            public int r;
-            public int g;
-            public int b;
-            public Color(int r, int g, int b)
+            public uint r;
+            public uint g;
+            public uint b;
+
+            public Color(uint r, uint g, uint b)
             {
                 this.r = Math.Max(0, Math.Min(255, r));
                 this.g = Math.Max(0, Math.Min(255, g));

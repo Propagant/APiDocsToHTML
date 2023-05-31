@@ -28,3 +28,9 @@ E:\WORK\Programming_Languages\C#\Projects\_Technical\HTMLApiCreator\html-api-cre
 E:\WORK\Programming_Languages\C#\Projects\_Technical\HTMLApiCreator\html-api-creator\APiDocsToHTML_DllSrc\obj\Debug\APiDocsToHTML.csproj.CoreCompileInputs.cache
 E:\WORK\Programming_Languages\C#\Projects\_Technical\HTMLApiCreator\html-api-creator\APiDocsToHTML_DllSrc\obj\Debug\APiDocsToHTML.dll
 E:\WORK\Programming_Languages\C#\Projects\_Technical\HTMLApiCreator\html-api-creator\APiDocsToHTML_DllSrc\obj\Debug\APiDocsToHTML.pdb
+E:\WORK\Programming_Languages\C#\Projects\_Technical\APiDocsToHTML\APiDocsToHTML\bin\Debug\APiDocsToHTML.dll
+E:\WORK\Programming_Languages\C#\Projects\_Technical\APiDocsToHTML\APiDocsToHTML\bin\Debug\APiDocsToHTML.pdb
+E:\WORK\Programming_Languages\C#\Projects\_Technical\APiDocsToHTML\APiDocsToHTML\obj\Debug\APiDocsToHTML.csproj.AssemblyReference.cache
+E:\WORK\Programming_Languages\C#\Projects\_Technical\APiDocsToHTML\APiDocsToHTML\obj\Debug\APiDocsToHTML.csproj.CoreCompileInputs.cache
+E:\WORK\Programming_Languages\C#\Projects\_Technical\APiDocsToHTML\APiDocsToHTML\obj\Debug\APiDocsToHTML.dll
+E:\WORK\Programming_Languages\C#\Projects\_Technical\APiDocsToHTML\APiDocsToHTML\obj\Debug\APiDocsToHTML.pdb

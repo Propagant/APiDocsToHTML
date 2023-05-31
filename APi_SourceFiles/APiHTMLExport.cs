@@ -17,8 +17,10 @@ namespace APiDocsToHtml
         private const string HTMLMacro_Categories = "<!--CATEGORIES-->";
         private const string HTMLMacro_Container = "<!--CONTAINER-->";
 
+        private const string SpaceAttributeMacro = "Space";
+
         /// <summary>
-        /// Class that represents a specific code-styles that the base html style contain. Each element has a shortcut macro for internal use and a regex-matchup pattern
+        /// The class represents a specific code style that the base HTML style contains. Each element has a shortcut macro for internal use and a regex match-up pattern
         /// </summary>
         public class CodeHTMLStyles
         {
@@ -126,7 +128,9 @@ namespace APiDocsToHtml
         /// <param name="exception">Exception message if the export is unsuccessful</param>
         /// <param name="customCodeHTMLStyles">Custom code in HTML styles with regex patterns (leave it null if unused)</param>
         /// <returns>Returns true if the export was successful. Otherwise listen to the exception output</returns>
-        public static bool ApiExportToHtml(List<APiCategory> apiCategories, string documentTitle, string targetDirectory, string htmlTemplatePath, string cssTemplatePath, out string exception, bool autoFormatCodeStyle = true, CodeHTMLStyles[] customCodeHTMLStyles = null)
+        public static bool ApiExportToHtml(in List<APiCategory> apiCategories, in string documentTitle, in string targetDirectory,
+            in string htmlTemplatePath, in string cssTemplatePath, out string exception, in bool autoFormatCodeStyle = true,
+            in CodeHTMLStyles[] customCodeHTMLStyles = null)
         {
             exception = "";
             if (!Directory.Exists(targetDirectory))
@@ -196,7 +200,7 @@ namespace APiDocsToHtml
                 bool foundBase = false;
 
                 // If its just a built-in attribute, ignore the rest
-                if (att != "Space")
+                if (!att.Equals(SpaceAttributeMacro))
                 {
                     foreach (APiCategory cat in apiCategories)
                     {
@@ -244,13 +248,13 @@ namespace APiDocsToHtml
                     foreach (APiCategory cat in apiCategories)
                     {
                         // Check conditions (Space is the only attribute available, other attributes will indicate to the nested inheritance in navbar)
-                        if (!sortedCategories.Contains(cat) && (cat.idText == attbase || !cat.HasAttribute() || cat.parentAttribute == "Space"))
+                        if (!sortedCategories.Contains(cat) && (cat.idText == attbase || !cat.HasAttribute() || cat.parentAttribute.Equals(SpaceAttributeMacro)))
                         {
                             bool isABase = false;
                             foreach (APiCategory cat2 in apiCategories)
                             {
                                 // Check if this is the base element for inheritance
-                                if(cat2.parentAttribute == cat.idText && cat.idText != attbase && cat.parentAttribute == "Space")
+                                if(cat2.parentAttribute == cat.idText && cat.idText != attbase && cat.parentAttribute.Equals(SpaceAttributeMacro))
                                 {
                                     isABase = true;
                                     break;
@@ -262,7 +266,7 @@ namespace APiDocsToHtml
                         }
                     }
 
-                    if (attbase == "Space")
+                    if (attbase.Equals(SpaceAttributeMacro))
                         continue;
 
                     // Add other unsorted categories
@@ -283,23 +287,23 @@ namespace APiDocsToHtml
             {
                 // Creating a copy of the html template for the particular category file
                 List<string> copyHtmlContent = new List<string>(htmlContent);
-                var apic = apiCategories[i];
+                APiCategory apiCategory = apiCategories[i];
                 // Replace the head title with the category title
-                copyHtmlContent[headIndex] = copyHtmlContent[headIndex].Replace(HTMLRepMacro_Head, apic.idText);
+                copyHtmlContent[headIndex] = copyHtmlContent[headIndex].Replace(HTMLRepMacro_Head, apiCategory.idText);
                 // Replace the docs title with the custom title
                 copyHtmlContent[titleIndex] = copyHtmlContent[titleIndex].Replace(HTMLRepMacro_Title, documentTitle);
 
                 // Writing all the categories to the side-bar navigator
-                int ac = 0;
+                int categoryIndexOffset = 0;
                 foreach(APiCategory sorted in sortedCategories)
                 {
-                    string isBreakAttribute = sorted.parentAttribute == "Space" ? "<br>" : "";
-                    string isSub = sorted.HasAttribute() && sorted.parentAttribute != "Space" ? "&emsp;" : "";
+                    string isBreakAttribute = sorted.parentAttribute == SpaceAttributeMacro ? "<br>" : "";
+                    string isSub = sorted.HasAttribute() && sorted.parentAttribute != SpaceAttributeMacro ? "&emsp;" : "";
 
                     string isReadOnly = sorted.ReadonlyCategory ? isSub : "<li>" + isSub + "<a href=\"" + sorted.idText.RemoveSpacesAndTrim() + ".html\">";
                     string isReadOnlyEnd = sorted.ReadonlyCategory ? "" : "</a></li>";
                     copyHtmlContent.Insert(categoryIndex, isBreakAttribute + isReadOnly + sorted.idText + isReadOnlyEnd);
-                    ac++;
+                    categoryIndexOffset++;
                 }
 
                 // Readonly categories do not have elements
@@ -307,23 +311,23 @@ namespace APiDocsToHtml
                     continue;
 
                 // Writing the page content
-                for (int d = 0; d < apic.pageElements.Count; d++)
+                for (int x = 0; x < apiCategory.pageElements.Count; x++)
                 {
-                    var el = apic.pageElements[d];
-                    int indx = containerIndex + ac + d;
-                    if(indx >= copyHtmlContent.Count)
+                    var element = apiCategory.pageElements[x];
+                    int elementIndexInsertion = containerIndex + categoryIndexOffset + x;
+                    if(elementIndexInsertion >= copyHtmlContent.Count)
                     {
-                        exception = $"Index of element insertion in {apic.idText} category is higher than expected {indx}vs{copyHtmlContent.Count}. Please fix your source!";
+                        exception = $"Index of element insertion in {apiCategory.idText} category is higher than expected {elementIndexInsertion}vs{copyHtmlContent.Count}. Please fix your source!";
                         return false;
                     }
-                    string idText = el.idText;
-                    if (el.idClass == "Code" && autoFormatCodeStyle)
+                    string idText = element.idText;
+                    if (element.idClass == "Code" && autoFormatCodeStyle)
                         idText = ApiConvertToHtmlCodeFormat(idText, customCodeHTMLStyles);
-                    copyHtmlContent.Insert(indx, $"<div class=\"{el.idClass}\">{idText.ConvertFromShortcutToCompleteStyle().MakeHTMLFriendly()}</div>");
+                    copyHtmlContent.Insert(elementIndexInsertion, $"<div class=\"{element.idClass}\">{idText.ConvertFromShortcutToCompleteStyle().MakeHTMLFriendly()}</div>");
                 }
 
                 // Writing the actual file
-                string htmlPath = $"{targetDirectory}{APiBase.STREAM_Separator}{apic.idText.RemoveSpacesAndTrim()}.html";
+                string htmlPath = $"{targetDirectory}{APiBase.STREAM_Separator}{apiCategory.idText.RemoveSpacesAndTrim()}.html";
                 try
                 {
                     File.Create(htmlPath).Dispose();
@@ -357,7 +361,7 @@ namespace APiDocsToHtml
         /// <param name="content">Text content for the expected conversion</param>
         /// <param name="customCodeHTMLStyles">Custom code-styles, leave empty if not used</param>
         /// <returns>Returns converted text content to the html-code style</returns>
-        private static string ApiConvertToHtmlCodeFormat(string content, CodeHTMLStyles[] customCodeHTMLStyles = null)
+        private static string ApiConvertToHtmlCodeFormat(in string content, in CodeHTMLStyles[] customCodeHTMLStyles = null)
         {            
             string[] newTextLines = content.Split('\n');
             int i = 0;

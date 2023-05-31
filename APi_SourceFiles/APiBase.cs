@@ -6,8 +6,8 @@ namespace APiDocsToHtml
     /// <summary>
     /// Main base class for the APi-documentation conversion to HTML documents.
     /// Use the class constructor for proper initialization. Please learn more on github about syntax and its use https://github.com/Propagant/APiDocsToHTML/blob/main/README.md
-    /// Version 1.0.0 - January 2023.
-    /// Written by Matej Vanco, https://matejvanco.com
+    /// Version 1.1.0 - May 2023.
+    /// Originally written in August 2022, by Matej Vanco, https://matejvanco.com
     /// </summary>
     public sealed class APiBase : APiData
     {
@@ -16,6 +16,7 @@ namespace APiDocsToHtml
         /// </summary>
         public string DefaultPath { get => _defaultPath; private set => _defaultPath = value; }
         private string _defaultPath;
+
         private readonly bool initialized = false;
 
         /// <summary>
@@ -177,9 +178,8 @@ namespace APiDocsToHtml
 
         private void CheckForCurrentElement(APiElement el, APiCategory cat)
         {
-            if (el == null)
-                return;
-            cat.pageElements.Add(el);
+            if (el != null)
+                cat.pageElements.Add(el);
         }
 
         public struct RequiredTemplates
@@ -281,11 +281,8 @@ namespace APiDocsToHtml
 
         #region Private Helpers
 
-        private string ReturnPlainText(string fullEntry, string removeMacro)
-        {
-            return fullEntry.Replace(removeMacro, "").Replace(STREAM_ReadonlyCategoryEndingMacro,"").TrimEnd();
-        }
-
+        private string ReturnPlainText(string fullEntry, string removeMacro) => fullEntry.Replace(removeMacro, "").Replace(STREAM_ReadonlyCategoryEndingMacro,"").TrimEnd();
+        
         private bool ReturnElement(string fullEntry, out string idClass, out string idContent)
         {
             idClass = "NULL";
