@@ -1,0 +1,94 @@
+{
+  "version": 3,
+  "targets": {
+    "net6.0": {
+      "APiDocsToHTML/1.0.0": {
+        "type": "project",
+        "compile": {
+          "bin/placeholder/APiDocsToHTML.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/APiDocsToHTML.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "APiDocsToHTML/1.0.0": {
+      "type": "project",
+      "path": "../APiDocsToHTML.csproj",
+      "msbuildProject": "../APiDocsToHTML.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net6.0": [
+      "APiDocsToHTML >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\PC\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "E:\\WORK\\Programming_Languages\\C#\\Projects\\_Technical\\APiDocsToHTML\\APiDocsToHTML\\APiDocsToHTMLAutoBuilder\\APiDocsToHTMLAutoBuilder.csproj",
+      "projectName": "APiDocsToHTMLAutoBuilder",
+      "projectPath": "E:\\WORK\\Programming_Languages\\C#\\Projects\\_Technical\\APiDocsToHTML\\APiDocsToHTML\\APiDocsToHTMLAutoBuilder\\APiDocsToHTMLAutoBuilder.csproj",
+      "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
+      "outputPath": "E:\\WORK\\Programming_Languages\\C#\\Projects\\_Technical\\APiDocsToHTML\\APiDocsToHTML\\APiDocsToHTMLAutoBuilder\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net6.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "projectReferences": {
+            "E:\\WORK\\Programming_Languages\\C#\\Projects\\_Technical\\APiDocsToHTML\\APiDocsToHTML\\APiDocsToHTML.csproj": {
+              "projectPath": "E:\\WORK\\Programming_Languages\\C#\\Projects\\_Technical\\APiDocsToHTML\\APiDocsToHTML\\APiDocsToHTML.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net6.0": {
+        "targetAlias": "net6.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.301\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

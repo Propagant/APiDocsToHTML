@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "APiDocsToHTMLAutoBuilder/1.0.0": {
+        "dependencies": {
+          "APiDocsToHTML": "1.0.0"
+        },
+        "runtime": {
+          "APiDocsToHTMLAutoBuilder.dll": {}
+        }
+      },
+      "APiDocsToHTML/1.0.0": {
+        "runtime": {
+          "APiDocsToHTML.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "APiDocsToHTMLAutoBuilder/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "APiDocsToHTML/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
