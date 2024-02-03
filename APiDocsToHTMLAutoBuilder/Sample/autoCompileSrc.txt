@@ -1,0 +1,6 @@
+Enter root folder containing both src and export folders, including auto-compiler directive file (eg: X:/MyRootFolder)
+Enter source folder name containig all the APiToDocs files (eg: Src)
+Enter html template file with extension that is located inside the typed root folder (eg: html.html)
+Enter css template file with extension that is located inside the typed root folder (eg: style.css)
+Enter head title for the exported html document (eg: My Wonderful Docs)
+Enter export folder name that will contain the exported html content (eg: Export)
