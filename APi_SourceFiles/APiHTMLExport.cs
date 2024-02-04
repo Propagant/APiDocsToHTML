@@ -54,13 +54,13 @@ namespace APiDocsToHtml
                     // Attributes (Require component & Space)
                     @"(RequireComponent|CustomEditor|Range(?=(\(|\s+?\()))|(?<=\[)(Space|CanEditMultipleObjects|SerializeField)(?=\])",
                     // Regular classes
-                    @"(?<!\w)(Camera|MonoBehaviour|MeshFilter|List|Mathf|Object|Collider|GameObject|Renderer|Mesh|AudioClip)(?!\w)",
+                    @"(?<!\w)(Camera|MonoBehaviour|Material|MeshFilter|List|Mathf|Light|Color|Object|Collider|GameObject|Renderer|Mesh|AudioClip)(?!\w)",
                     // Input
                     @"(?<!\w)(Input|KeyCode)(?!\w)",
                     // Physics
                     @"(?<!\w)(Ray|Physics|RaycastHit)(?!\w)",
                     // Other
-                    @"(?<!\w)(Debug|Time|Transform)(?!\w)"
+                    @"(?<!\w)(Debug|Time|Transform|Texture2D|IReadOnlyList)(?!\w)"
                  }
             },
 
@@ -73,9 +73,11 @@ namespace APiDocsToHtml
                  catchupPatterns = new string[]
                  {
                     // Essential keywords
-                    @"(?<!\w)(using|get|async|virtual|set|public|private|sealed|static|abstract|protected|override|base|new|void|class|return|out|in|typeof|if|while|else|for|foreach|continue|null)(?!\w)",
+                    @"(?<!\w)(using|get|async|virtual|set|public|private|sealed|const|static|abstract|protected|override|base|new|void|class|return|out|in|typeof|if|while|else|for|foreach|continue|null)(?!\w)",
                     // Datatypes
-                    @"(?<!\w)(Vector3|Vector2|Quaternion|true|false|bool|int|float|string|var)(?!\w)"
+                    @"(?<!\w)(Vector3|Vector2|Quaternion|true|false|bool|int|float|string|var)(?!\w)",
+                    // Shading language
+                    @"(?<!\w)(float2|float3|float4|half|half2|half3|half4|float2x2|float3x3|float4x4|half2x2|half3x3|half4x4)(?!\w)"
                  }
             },
 
@@ -366,8 +368,6 @@ namespace APiDocsToHtml
             string[] newTextLines = content.Split('\n');
             int i = 0;
             string currLine;
-            Regex regex;
-            MatchCollection matches;
             string commentPart;
 
             foreach (string line in newTextLines)
@@ -398,7 +398,7 @@ namespace APiDocsToHtml
                 // Go through the all registered code html styles
                 ListThroughTheCode(RegisteredCodeHTMLStyles);
                 // Check custom code
-                if(customCodeHTMLStyles != null)
+                if(customCodeHTMLStyles != null && customCodeHTMLStyles.Length > 0)
                     ListThroughTheCode(customCodeHTMLStyles);
 
                 cont:
@@ -412,8 +412,6 @@ namespace APiDocsToHtml
                 sb.Append(newTextLines[x] + System.Environment.NewLine);
 
             return sb.ToString();
-
-
 
 
             // Go through the specific CodeHtmlStyles array and do matches
@@ -430,14 +428,7 @@ namespace APiDocsToHtml
             // Process specific match iterations
             void DoMatches(string matchPattern, string codeStartingMacro, string codeEndingMacro)
             {
-                regex = new Regex(matchPattern);
-                matches = regex.Matches(currLine);
-                if (matches.Count > 0)
-                    foreach (Match m in matches)
-                    {
-                        if (m.Success)
-                            currLine = currLine.Replace(m.Value, codeStartingMacro + m.Value + codeEndingMacro);
-                    }
+                currLine = Regex.Replace(currLine, matchPattern, match => codeStartingMacro + match.Value + codeEndingMacro);
             }
         }
     }

@@ -1,10 +1,11 @@
 ﻿// Very simple auto-builder of the APiDocsToHTML project.
 // Written by Matej Vanco, November 2023 as a shortcut for building an APi html documentations.
+// Updated in February 2024
 
 using APiDocsToHtml;
 
 bool process = true;
-string msg = "";
+string msg;
 
 while (process)
 {
@@ -30,12 +31,25 @@ Again:
                 "3rd: html template file name + extension (in this local path)\n" +
                 "4th: css template file name + extension (in this local path)\n" +
                 "5th: export document title name\n" +
-                "6th: export directory name (in this local path)\n");
+                "6th: export directory name (in this local path)\n" +
+                "7th (optional): custom html code styles. Write 'CUSTOM CODE STYLES' first to begin writing custom code styles. Then use the following format:\n" +
+                "styleClassName|styleShortcutStartingMacro|styleShortcutEndingMacro(NEWLINE)listOfCatchupPatterns(NEWLINE + CODE STYLE END to continue writing patterns for this entity)\n\n"+
+                "Currently available code styles: CodeKeyword|<ck>|</c>, CodeType|<ct>|</c>, CodeString|<cs>|</c>");
             msg = "";
             goto RepeatQuestion;
         }
         else if(exportTemplate != "n")
         {
+            if (exportTemplate == "auto")
+            {
+                exportTemplate = AppDomain.CurrentDomain.BaseDirectory + "/autoPath.txt";
+                if(!File.Exists(exportTemplate))
+                {
+                    msg = "The entered auto path doesn't exist! Please create a file with 'autoPath.txt' in the current directory containing the target project src directory!";
+                    goto RepeatQuestion;
+                }
+                exportTemplate = File.ReadAllText(exportTemplate);
+            }
             if(!File.Exists(exportTemplate))
             {
                 msg = "The entered export template file doesn't exist!";
@@ -58,7 +72,51 @@ Again:
                     APiBase.RequiredTemplates templates = new APiBase.RequiredTemplates();
                     templates.htmlTemplatePath = api.DefaultPath + "/" + lines[2];
                     templates.styleTemplatePath = api.DefaultPath + "/" + lines[3];
-                    if (api.ApiExportDocument(lines[4], api.DefaultPath + "/" + lines[5], templates, out ex))
+                    List<APiHTMLExport.CodeHTMLStyles> codeStyles = new List<APiHTMLExport.CodeHTMLStyles>();
+
+                    if (lines.Length > 6 && lines[6].Trim().ToUpper() == "CUSTOM CODE STYLES")
+                    {
+                        bool readingPatterns = false;
+                        APiHTMLExport.CodeHTMLStyles currentStyle = new APiHTMLExport.CodeHTMLStyles();
+                        List<string> currentPatterns = new List<string>();
+                        for (int i = 7; i < lines.Length; i++)
+                        {
+                            if(!readingPatterns)
+                            {
+                                if (string.IsNullOrWhiteSpace(lines[i]))
+                                    continue;
+
+                                string[] content = lines[i].Split('|');
+                                if(content.Length != 3)
+                                {
+                                    msg = "Invalid syntax while creating a custom code html style! CodeHTMLStyle contains just 3 params!";
+                                    goto RepeatQuestion;
+                                }
+                                currentStyle.styleClassName = content[0];
+                                currentStyle.styleShortcutStartingMacro = content[1];
+                                currentStyle.styleShortcutEndingMacro = content[2];
+                                readingPatterns = true;
+                                Console.WriteLine("*Detected code style: " + lines[i]);
+                            }
+                            else
+                            {
+                                if (lines[i].Trim().ToUpper() == "CODE STYLE END")
+                                {
+                                    currentStyle.catchupPatterns = currentPatterns.ToArray();
+                                    codeStyles.Add(currentStyle);
+                                    Console.WriteLine("*Custom code style entity added: " + lines[i]);
+                                    currentStyle = new APiHTMLExport.CodeHTMLStyles();
+                                    currentPatterns.Clear();
+                                    readingPatterns = false;
+                                    continue;
+                                }
+                                Console.WriteLine("-----> Detected code pattern for this style: " + lines[i]);
+                                currentPatterns.Add(lines[i]);
+                            }
+                        }
+                    }
+
+                    if (api.ApiExportDocument(lines[4], api.DefaultPath + "/" + lines[5], templates, out ex, true, codeStyles.ToArray()))
                     {
                         msg = "Export successful!";
                         goto RepeatQuestion;

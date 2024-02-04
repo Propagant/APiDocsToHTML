@@ -39,14 +39,14 @@ namespace APiDocsToHtml
         /// </summary>
         public List<APiCategory> CurrentDocumentApiCategories { get; private set; }
 
-        public static readonly string STREAM_DefaultExtension = ".txt";
+        public const string STREAM_DefaultExtension = ".txt";
         public static readonly char STREAM_Separator = Path.DirectorySeparatorChar;
 
         // Streaming macros for custom APiDocs database convertor
-        private readonly string STREAM_DocsData = "> DOCUMENT DATA <";
-        private readonly string STREAM_CategoryMacro = "|>";
-        private readonly string STREAM_ReadonlyCategoryEndingMacro = "<|";
-        private readonly string STREAM_ElementMacro = "|#";
+        private const string STREAM_DocsData = "> DOCUMENT DATA <";
+        private const string STREAM_CategoryMacro = "|>";
+        private const string STREAM_ReadonlyCategoryEndingMacro = "<|";
+        private const string STREAM_ElementMacro = "|#";
 
         /// <summary>
         /// Load specific document from the database (See documentation for syntax rules)
