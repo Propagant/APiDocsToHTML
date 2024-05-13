@@ -35,5 +35,17 @@
 
 </body>
 
+<!--The script keeps the scrollbar in-place whether the user switches a page-->
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        var scrollpos = localStorage.getItem('scrollpos');
+        if (scrollpos) window.scrollTo(0, scrollpos);
+    });
+
+    window.onbeforeunload = function(e) {
+        localStorage.setItem('scrollpos', window.scrollY);
+    };
+</script>
+
 <!--Template written by Matej Vanco, https://matejvanco.com-->
 </html>

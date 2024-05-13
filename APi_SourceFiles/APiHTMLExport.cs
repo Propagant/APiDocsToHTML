@@ -12,34 +12,36 @@ namespace APiDocsToHtml
     public static class APiHTMLExport
     {
         // The params below must exist in the template HTML document
-        private const string HTMLRepMacro_Head = "|PAGE_HEAD|";
-        private const string HTMLRepMacro_Title = "|DOCS_TITLE|";
-        private const string HTMLMacro_Categories = "<!--CATEGORIES-->";
-        private const string HTMLMacro_Container = "<!--CONTAINER-->";
+        private const string HTML_MACRO_HEAD = "|PAGE_HEAD|";
+        private const string HTML_MACRO_TITLE = "|DOCS_TITLE|";
+        private const string HTML_MACRO_CATEGORIES = "<!--CATEGORIES-->";
+        private const string HTML_MACRO_BODYCONTAINER = "<!--CONTAINER-->";
 
-        private const string SpaceAttributeMacro = "Space";
+        // Exporter attributes (Currently only one - space)
+        private const string ATTRIBUTE_MACRO_SPACE = "Space";
+
+        // Exporter common macros
+        private const string COMMON_MACRO_SHORTCUT_END = "</c>";
 
         /// <summary>
         /// The class represents a specific code style that the base HTML style contains. Each element has a shortcut macro for internal use and a regex match-up pattern
         /// </summary>
-        public class CodeHTMLStyles
+        public sealed class CodeHTMLStyles
         {
             public string styleClassName;
-            public string styleShortcutStartingMacro;
-            public string styleShortcutEndingMacro;
+            public string styleShortcutMacroStart;
             public string[] catchupPatterns;
             public bool isCommentType;
         }
 
         // All the expressions have been made just for my personal purposes [C#] (might be updated in the future with more expressions if needed)
-        private static readonly CodeHTMLStyles[] RegisteredCodeHTMLStyles = new CodeHTMLStyles[]
+        private static readonly CodeHTMLStyles[] registeredCodeHTMLStyles = new CodeHTMLStyles[]
         {
             // Code-comments
             new CodeHTMLStyles()
             {
                  styleClassName="CodeComment",
-                 styleShortcutStartingMacro="<cc>",
-                 styleShortcutEndingMacro="</c>",
+                 styleShortcutMacroStart="<cc>",
                  isCommentType = true
             },
 
@@ -47,8 +49,7 @@ namespace APiDocsToHtml
             new CodeHTMLStyles()
             {
                  styleClassName="CodeType",
-                 styleShortcutStartingMacro="<ct>",
-                 styleShortcutEndingMacro="</c>",
+                 styleShortcutMacroStart="<ct>",
                  catchupPatterns = new string[]
                  {
                     // Attributes (Require component & Space)
@@ -68,8 +69,7 @@ namespace APiDocsToHtml
             new CodeHTMLStyles()
             {
                  styleClassName="CodeKeyword",
-                 styleShortcutStartingMacro="<ck>",
-                 styleShortcutEndingMacro="</c>",
+                 styleShortcutMacroStart="<ck>",
                  catchupPatterns = new string[]
                  {
                     // Essential keywords
@@ -85,16 +85,17 @@ namespace APiDocsToHtml
             new CodeHTMLStyles()
             {
                  styleClassName="CodeString",
-                 styleShortcutStartingMacro="<cs>",
-                 styleShortcutEndingMacro="</c>",
+                 styleShortcutMacroStart="<cs>",
                  catchupPatterns = new string[]
                  {
-                     // Strings and numerics
+                    // Strings and numerics
                     "(\"((\\[^\n]|[^\"\"\n])*)\")|((?<!\\w)([-+]?[0-9]*\\.?[0-9]+)f?)"
                  }
             }
         };
-        private static readonly string RegisteredCodeComment = "//"; // Lines that start with this string will be ignored and marked as a comment style
+        private const string RegisteredCodeComment = "//"; // Lines that start with this string will be ignored and marked as a comment style
+
+        public static IReadOnlyCollection<CodeHTMLStyles> RegisteredCodeHTMLStylesReadonly => registeredCodeHTMLStyles;
 
         /// <summary>
         /// Get a comment element from the registered html-code-styles
@@ -114,8 +115,8 @@ namespace APiDocsToHtml
         /// <returns>Returns a converted css style (if exists)</returns>
         private static string ConvertFromShortcutToCompleteStyle(this string str)
         {
-            foreach(CodeHTMLStyles dhtmls in RegisteredCodeHTMLStyles)
-                str = str.Replace(dhtmls.styleShortcutStartingMacro, $"<span class={dhtmls.styleClassName}>").Replace(dhtmls.styleShortcutEndingMacro,"</span>");
+            foreach(CodeHTMLStyles dhtmls in registeredCodeHTMLStyles)
+                str = str.Replace(dhtmls.styleShortcutMacroStart, $"<span class={dhtmls.styleClassName}>").Replace(COMMON_MACRO_SHORTCUT_END, "</span>");
             return str;
         }
 
@@ -163,13 +164,13 @@ namespace APiDocsToHtml
             for (int i = 0; i < htmlContent.Count; i++)
             {
                 string l = htmlContent[i].Trim();
-                if (headIndex == -1 && l.Contains(HTMLRepMacro_Head))
+                if (headIndex == -1 && l.Contains(HTML_MACRO_HEAD))
                     headIndex = i;
-                if (titleIndex == -1 && l.Contains(HTMLRepMacro_Title))
+                if (titleIndex == -1 && l.Contains(HTML_MACRO_TITLE))
                     titleIndex = i;
-                if (categoryIndex == -1 && l == HTMLMacro_Categories)
+                if (categoryIndex == -1 && l == HTML_MACRO_CATEGORIES)
                     categoryIndex = i + 1;
-                if (containerIndex == -1 && l == HTMLMacro_Container)
+                if (containerIndex == -1 && l == HTML_MACRO_BODYCONTAINER)
                     containerIndex = i + 1;
             }
 
@@ -177,10 +178,10 @@ namespace APiDocsToHtml
             if(categoryIndex == -1 || containerIndex == -1 || headIndex == -1 || titleIndex == -1)
             {
                 exception = $"Target html template file '{htmlTemplatePath}' doesn't contain a " +
-                    $"'{HTMLMacro_Categories}' macro for insertion of categories or " +
-                    $"'{HTMLMacro_Container}' macro for insertion of container or " +
-                    $"'{HTMLRepMacro_Head}' for head title or " +
-                    $"'{HTMLRepMacro_Title}' for docs title";
+                    $"'{HTML_MACRO_CATEGORIES}' macro for insertion of categories or " +
+                    $"'{HTML_MACRO_BODYCONTAINER}' macro for insertion of container or " +
+                    $"'{HTML_MACRO_HEAD}' for head title or " +
+                    $"'{HTML_MACRO_TITLE}' for docs title";
                 return false;
             }
 
@@ -202,7 +203,7 @@ namespace APiDocsToHtml
                 bool foundBase = false;
 
                 // If its just a built-in attribute, ignore the rest
-                if (!att.Equals(SpaceAttributeMacro))
+                if (!att.Equals(ATTRIBUTE_MACRO_SPACE))
                 {
                     foreach (APiCategory cat in apiCategories)
                     {
@@ -229,10 +230,8 @@ namespace APiDocsToHtml
                     sortedAttributes.Add((att, 9));
             }
 
-            // Sort attributes from top to bottom
             sortedAttributes.Sort((a, b) => a.Item2.CompareTo(b.Item2));
 
-            // Populate available attributes again if possible
             if (sortedAttributes.Count > 0)
             {
                 availableAttributes.Clear();
@@ -250,13 +249,13 @@ namespace APiDocsToHtml
                     foreach (APiCategory cat in apiCategories)
                     {
                         // Check conditions (Space is the only attribute available, other attributes will indicate to the nested inheritance in navbar)
-                        if (!sortedCategories.Contains(cat) && (cat.idText == attbase || !cat.HasAttribute() || cat.parentAttribute.Equals(SpaceAttributeMacro)))
+                        if (!sortedCategories.Contains(cat) && (cat.idText == attbase || !cat.HasAttribute() || cat.parentAttribute.Equals(ATTRIBUTE_MACRO_SPACE)))
                         {
                             bool isABase = false;
                             foreach (APiCategory cat2 in apiCategories)
                             {
                                 // Check if this is the base element for inheritance
-                                if(cat2.parentAttribute == cat.idText && cat.idText != attbase && cat.parentAttribute.Equals(SpaceAttributeMacro))
+                                if(cat2.parentAttribute == cat.idText && cat.idText != attbase && cat.parentAttribute.Equals(ATTRIBUTE_MACRO_SPACE))
                                 {
                                     isABase = true;
                                     break;
@@ -268,7 +267,7 @@ namespace APiDocsToHtml
                         }
                     }
 
-                    if (attbase.Equals(SpaceAttributeMacro))
+                    if (attbase.Equals(ATTRIBUTE_MACRO_SPACE))
                         continue;
 
                     // Add other unsorted categories
@@ -281,7 +280,6 @@ namespace APiDocsToHtml
             }
             else sortedCategories.AddRange(apiCategories);
 
-            // Reverse list
             sortedCategories.Reverse();
 
             // Inserting the categories and their content to the html content
@@ -291,16 +289,16 @@ namespace APiDocsToHtml
                 List<string> copyHtmlContent = new List<string>(htmlContent);
                 APiCategory apiCategory = apiCategories[i];
                 // Replace the head title with the category title
-                copyHtmlContent[headIndex] = copyHtmlContent[headIndex].Replace(HTMLRepMacro_Head, apiCategory.idText);
+                copyHtmlContent[headIndex] = copyHtmlContent[headIndex].Replace(HTML_MACRO_HEAD, apiCategory.idText);
                 // Replace the docs title with the custom title
-                copyHtmlContent[titleIndex] = copyHtmlContent[titleIndex].Replace(HTMLRepMacro_Title, documentTitle);
+                copyHtmlContent[titleIndex] = copyHtmlContent[titleIndex].Replace(HTML_MACRO_TITLE, documentTitle);
 
                 // Writing all the categories to the side-bar navigator
                 int categoryIndexOffset = 0;
                 foreach(APiCategory sorted in sortedCategories)
                 {
-                    string isBreakAttribute = sorted.parentAttribute == SpaceAttributeMacro ? "<br>" : "";
-                    string isSub = sorted.HasAttribute() && sorted.parentAttribute != SpaceAttributeMacro ? "&emsp;" : "";
+                    string isBreakAttribute = sorted.parentAttribute == ATTRIBUTE_MACRO_SPACE ? "<br>" : "";
+                    string isSub = sorted.HasAttribute() && sorted.parentAttribute != ATTRIBUTE_MACRO_SPACE ? "&emsp;" : "";
 
                     string isReadOnly = sorted.ReadonlyCategory ? isSub : "<li>" + isSub + "<a href=\"" + sorted.idText.RemoveSpacesAndTrim() + ".html\">";
                     string isReadOnlyEnd = sorted.ReadonlyCategory ? "" : "</a></li>";
@@ -328,8 +326,8 @@ namespace APiDocsToHtml
                     copyHtmlContent.Insert(elementIndexInsertion, $"<div class=\"{element.idClass}\">{idText.ConvertFromShortcutToCompleteStyle().MakeHTMLFriendly()}</div>");
                 }
 
-                // Writing the actual file
                 string htmlPath = $"{targetDirectory}{APiBase.STREAM_Separator}{apiCategory.idText.RemoveSpacesAndTrim()}.html";
+
                 try
                 {
                     File.Create(htmlPath).Dispose();
@@ -344,7 +342,6 @@ namespace APiDocsToHtml
 
             try
             {
-                // Exporting the css style template
                 File.Create(targetDirectory + APiBase.STREAM_Separator + "style.css").Dispose();
                 File.WriteAllText(targetDirectory + APiBase.STREAM_Separator + "style.css", File.ReadAllText(cssTemplatePath));
             }
@@ -375,29 +372,27 @@ namespace APiDocsToHtml
                 commentPart = "";
                 currLine = line;
 
-                // Make < and > friendly for HTML
                 currLine = currLine.Replace("<", "&lt;").Replace(">", "&gt;");
 
                 // Check for comments (specified for C#)
                 if (currLine.Contains(RegisteredCodeComment))
                 {
-                    var commentType = GetCommentCodeHtmlStyle(RegisteredCodeHTMLStyles);
+                    var commentType = GetCommentCodeHtmlStyle(registeredCodeHTMLStyles);
                     int cmntindx = currLine.IndexOf(RegisteredCodeComment);
                     if(cmntindx == 0)
                     {
-                        currLine = currLine.Replace(currLine, commentType.styleShortcutStartingMacro + currLine + commentType.styleShortcutEndingMacro);
+                        currLine = currLine.Replace(currLine, commentType.styleShortcutMacroStart + currLine + COMMON_MACRO_SHORTCUT_END);
                         goto cont;
                     }
                     else
                     {
-                        commentPart = commentType.styleShortcutStartingMacro + currLine.Substring(cmntindx, currLine.Length - cmntindx) + commentType.styleShortcutEndingMacro;
+                        commentPart = commentType.styleShortcutMacroStart + currLine.Substring(cmntindx, currLine.Length - cmntindx) + COMMON_MACRO_SHORTCUT_END;
                         currLine = currLine.Substring(0, cmntindx);
                     }
                 }
 
-                // Go through the all registered code html styles
-                ListThroughTheCode(RegisteredCodeHTMLStyles);
-                // Check custom code
+                ListThroughTheCode(registeredCodeHTMLStyles);
+
                 if(customCodeHTMLStyles != null && customCodeHTMLStyles.Length > 0)
                     ListThroughTheCode(customCodeHTMLStyles);
 
@@ -406,30 +401,25 @@ namespace APiDocsToHtml
                 i++;
             }
 
-            // Create a single string
             StringBuilder sb = new StringBuilder();
+
             for (int x = 0; x < newTextLines.Length; x++)
                 sb.Append(newTextLines[x] + System.Environment.NewLine);
 
             return sb.ToString();
 
-
-            // Go through the specific CodeHtmlStyles array and do matches
             void ListThroughTheCode(CodeHTMLStyles[] listChtmls)
             {
                 foreach (CodeHTMLStyles dhtmls in listChtmls)
                 {
                     if (dhtmls.catchupPatterns != null)
                         foreach (string p in dhtmls.catchupPatterns)
-                            DoMatches(p, dhtmls.styleShortcutStartingMacro, dhtmls.styleShortcutEndingMacro);
+                            DoMatches(p, dhtmls.styleShortcutMacroStart, COMMON_MACRO_SHORTCUT_END);
                 }
             }
 
-            // Process specific match iterations
             void DoMatches(string matchPattern, string codeStartingMacro, string codeEndingMacro)
-            {
-                currLine = Regex.Replace(currLine, matchPattern, match => codeStartingMacro + match.Value + codeEndingMacro);
-            }
+                => currLine = Regex.Replace(currLine, matchPattern, match => codeStartingMacro + match.Value + codeEndingMacro);
         }
     }
 }

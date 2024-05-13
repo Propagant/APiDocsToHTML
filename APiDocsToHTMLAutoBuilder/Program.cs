@@ -16,41 +16,63 @@ while (process)
     Console.WriteLine("\n\n");
 
 Again:
-    Console.WriteLine("\nDo you have any export template of your APiDocsToHTML project? Write n for no, write h for 'what is the export template?' or write the exact path of your export template file:");
+    Console.WriteLine("\nDo you have any export template of your APiDocsToHTML project? Leave the field empty or write 'n' for guided step-by-step project export, write 'h' for 'what is the export template?', write 'auto' for automatic export process, or write the exact path of your export template file:");
     string? exportTemplate = Console.ReadLine();
 
     // Export template
-    if(exportTemplate != null)
+    if(exportTemplate != null && !string.IsNullOrEmpty(exportTemplate))
     {
         if(exportTemplate == "h")
         {
-            Console.WriteLine("Export template is a shortcut & time-saving file that helps you to skip all the steps that this console application contains for proper export of your APiDocsToHTML project.\n" +
+            Console.WriteLine("\nExport template is a shortcut & time-saving file that helps you to skip all the steps the console application requires for proper export of your APiDocsToHTML project.\n" +
                 "The export template must be a .txt file. See the line-by-line hierarchy of how such 'export template' should look like:\n\n" +
-                "1st: APiDocsToHTML root project exact directory path\n" +
-                "2nd: APiDocsToHTML project directory name (in this local path)\n" +
-                "3rd: html template file name + extension (in this local path)\n" +
-                "4th: css template file name + extension (in this local path)\n" +
+                "1st: APiDocsToHTML root project exact directory path OR use 'local' keyword [recommended] for the current directory where the auto-builder started (not related to the specific path)\n" +
+                "2nd: APiDocsToHTML project directory name (in this local root path)\n" +
+                "3rd: html template file name + extension (in this local root path)\n" +
+                "4th: css template file name + extension (in this local root path)\n" +
                 "5th: export document title name\n" +
                 "6th: export directory name (in this local path)\n" +
                 "7th (optional): custom html code styles. Write 'CUSTOM CODE STYLES' first to begin writing custom code styles. Then use the following format:\n" +
-                "styleClassName|styleShortcutStartingMacro|styleShortcutEndingMacro(NEWLINE)listOfCatchupPatterns(NEWLINE + CODE STYLE END to continue writing patterns for this entity)\n\n"+
-                "Currently available code styles: CodeKeyword|<ck>|</c>, CodeType|<ct>|</c>, CodeString|<cs>|</c>");
+                "styleClassName|styleShortcutMacroStart(NEWLINE)listOfCatchupPatterns(NEWLINE + 'CODE STYLE END' to continue writing patterns for this entity)\n\n"+
+                "Currently available code styles:\n");
+            foreach(var style in APiHTMLExport.RegisteredCodeHTMLStylesReadonly)
+            {
+                Console.WriteLine($"Style class name: {style.styleClassName}, Style class macro: {style.styleShortcutMacroStart}. CatchupPatterns:\n");
+                if(style.catchupPatterns == null)
+                {
+                    Console.WriteLine("No cactchup patterns.\n");
+                    continue;
+                }
+                foreach (string pattern in style.catchupPatterns)
+                    Console.Write(pattern + "  ,  ");
+                Console.WriteLine("\n");
+            }
             msg = "";
             goto RepeatQuestion;
         }
         else if(exportTemplate != "n")
         {
+            bool isConfigFile = false;
+
             if (exportTemplate == "auto")
             {
                 exportTemplate = AppDomain.CurrentDomain.BaseDirectory + "/autoPath.txt";
-                if(!File.Exists(exportTemplate))
+                if (!File.Exists(exportTemplate))
                 {
-                    msg = "The entered auto path doesn't exist! Please create a file with 'autoPath.txt' in the current directory containing the target project src directory!";
-                    goto RepeatQuestion;
+                    exportTemplate = AppDomain.CurrentDomain.BaseDirectory + "/config.txt";
+                    if (!File.Exists(exportTemplate))
+                    {
+                        msg = "The entered auto path doesn't exist! Please create a file with 'autoPath.txt' in the current directory containing the target project src directory or create a 'config.txt' file containing the direct auto-fill information about your APiDocsToHTML project!";
+                        goto RepeatQuestion;
+                    }
+                    else
+                        isConfigFile = true;
                 }
-                exportTemplate = File.ReadAllText(exportTemplate);
+                else
+                    exportTemplate = File.ReadAllText(exportTemplate);
             }
-            if(!File.Exists(exportTemplate))
+
+            if (!isConfigFile && !File.Exists(exportTemplate))
             {
                 msg = "The entered export template file doesn't exist!";
                 goto RepeatQuestion;
@@ -64,7 +86,7 @@ Again:
 
             }
 
-            APiBase api = new APiBase(lines[0], out bool succ);
+            APiBase api = new APiBase(lines[0].Trim() == "local" ? AppDomain.CurrentDomain.BaseDirectory : lines[0], out bool succ);
             if (succ)
             {
                 if (api.ApiLoadDocument(lines[1], out string ex))
@@ -87,14 +109,13 @@ Again:
                                     continue;
 
                                 string[] content = lines[i].Split('|');
-                                if(content.Length != 3)
+                                if(content.Length != 2)
                                 {
-                                    msg = "Invalid syntax while creating a custom code html style! CodeHTMLStyle contains just 3 params!";
+                                    msg = "Invalid syntax while creating a custom code html style! CodeHTMLStyle contains just 2 params!";
                                     goto RepeatQuestion;
                                 }
                                 currentStyle.styleClassName = content[0];
-                                currentStyle.styleShortcutStartingMacro = content[1];
-                                currentStyle.styleShortcutEndingMacro = content[2];
+                                currentStyle.styleShortcutMacroStart = content[1];
                                 readingPatterns = true;
                                 Console.WriteLine("*Detected code style: " + lines[i]);
                             }
@@ -238,7 +259,7 @@ Again:
     // Repeat?
 RepeatQuestion:
     Console.WriteLine("\n\n--- " + msg + " ---\n\n");
-    Console.WriteLine("*Would you like to repeat the auto build process? write y for yes, write n for nope");
+    Console.WriteLine("*Would you like to repeat the auto build sequence? write y for yes, write n for nope");
     string? yesNo = Console.ReadLine();
     process = yesNo != null && yesNo == "y";
     if (process)
