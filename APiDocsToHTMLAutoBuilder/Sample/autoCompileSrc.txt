@@ -5,6 +5,6 @@ Enter css template file with extension that is located inside the typed root fol
 Enter head title for the exported html document (eg: My Wonderful Docs)
 Enter export folder name that will contain the exported html content (eg: Export)
 CUSTOM CODE STYLES - define this if you want to define custom code styles
-CodeType|<ct>|</c>
+CodeType|<ct>
 (?<!\w)(RenderTypeOptions|RenderIterationOptions)(?!\w)
 CODE STYLE END

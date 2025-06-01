@@ -111,13 +111,13 @@ Again:
                                 string[] content = lines[i].Split('|');
                                 if(content.Length != 2)
                                 {
-                                    msg = "Invalid syntax while creating a custom code html style! CodeHTMLStyle contains just 2 params!";
+                                    msg = "Invalid syntax while creating a custom code html style! CodeHTMLStyle must contain just 2 params!";
                                     goto RepeatQuestion;
                                 }
                                 currentStyle.styleClassName = content[0];
                                 currentStyle.styleShortcutMacroStart = content[1];
                                 readingPatterns = true;
-                                Console.WriteLine("*Detected code style: " + lines[i]);
+                                Console.WriteLine("*Detected code style class: " + currentStyle.styleClassName + ", with start macro: " + currentStyle.styleShortcutMacroStart);
                             }
                             else
                             {

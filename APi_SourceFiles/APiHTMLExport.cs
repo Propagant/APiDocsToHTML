@@ -113,10 +113,13 @@ namespace APiDocsToHtml
         /// Convert a shortcut macro to the html-friendly existing css class
         /// </summary>
         /// <returns>Returns a converted css style (if exists)</returns>
-        private static string ConvertFromShortcutToCompleteStyle(this string str)
+        private static string ConvertFromShortcutToCompleteStyle(this string str, CodeHTMLStyles[] customStyles = null)
         {
             foreach(CodeHTMLStyles dhtmls in registeredCodeHTMLStyles)
                 str = str.Replace(dhtmls.styleShortcutMacroStart, $"<span class={dhtmls.styleClassName}>").Replace(COMMON_MACRO_SHORTCUT_END, "</span>");
+            if (customStyles != null && customStyles.Length > 0)
+                foreach (CodeHTMLStyles dhtmls in customStyles)
+                    str = str.Replace(dhtmls.styleShortcutMacroStart, $"<span class={dhtmls.styleClassName}>").Replace(COMMON_MACRO_SHORTCUT_END, "</span>");
             return str;
         }
 
@@ -175,13 +178,28 @@ namespace APiDocsToHtml
             }
 
             // The html template file must contain category and container macros for proper conversion
-            if(categoryIndex == -1 || containerIndex == -1 || headIndex == -1 || titleIndex == -1)
+            if (categoryIndex == -1)
             {
                 exception = $"Target html template file '{htmlTemplatePath}' doesn't contain a " +
-                    $"'{HTML_MACRO_CATEGORIES}' macro for insertion of categories or " +
-                    $"'{HTML_MACRO_BODYCONTAINER}' macro for insertion of container or " +
-                    $"'{HTML_MACRO_HEAD}' for head title or " +
+                    $"'{HTML_MACRO_CATEGORIES}' macro for insertion of categories";
+                return false;
+            }
+            if (headIndex == -1)
+            {
+                exception = $"Target html template file '{htmlTemplatePath}' doesn't contain a " +
+                    $"'{HTML_MACRO_HEAD}' for head title";
+                return false;
+            }
+            if (titleIndex == -1)
+            {
+                exception = $"Target html template file '{htmlTemplatePath}' doesn't contain a " +
                     $"'{HTML_MACRO_TITLE}' for docs title";
+                return false;
+            }
+            if (containerIndex == -1)
+            {
+                exception = $"Target html template file '{htmlTemplatePath}' doesn't contain a " +
+                    $"'{HTML_MACRO_BODYCONTAINER}' macro for insertion of container";
                 return false;
             }
 
@@ -197,7 +215,6 @@ namespace APiDocsToHtml
 
             // Declare a sorted attribute-list
             List<(string, int)> sortedAttributes = new List<(string, int)>();
-
             foreach (string att in availableAttributes)
             {
                 bool foundBase = false;
@@ -261,7 +278,8 @@ namespace APiDocsToHtml
                                     break;
                                 }
                             }
-                            if (isABase) continue;
+                            if (isABase)
+                                continue;
 
                             sortedCategories.Add(cat);
                         }
@@ -278,7 +296,8 @@ namespace APiDocsToHtml
                     }
                 }
             }
-            else sortedCategories.AddRange(apiCategories);
+            else
+                sortedCategories.AddRange(apiCategories);
 
             sortedCategories.Reverse();
 
@@ -323,7 +342,7 @@ namespace APiDocsToHtml
                     string idText = element.idText;
                     if (element.idClass == "Code" && autoFormatCodeStyle)
                         idText = ApiConvertToHtmlCodeFormat(idText, customCodeHTMLStyles);
-                    copyHtmlContent.Insert(elementIndexInsertion, $"<div class=\"{element.idClass}\">{idText.ConvertFromShortcutToCompleteStyle().MakeHTMLFriendly()}</div>");
+                    copyHtmlContent.Insert(elementIndexInsertion, $"<div class=\"{element.idClass}\">{idText.ConvertFromShortcutToCompleteStyle(customCodeHTMLStyles).MakeHTMLFriendly()}</div>");
                 }
 
                 string htmlPath = $"{targetDirectory}{APiBase.STREAM_Separator}{apiCategory.idText.RemoveSpacesAndTrim()}.html";

@@ -43,10 +43,12 @@ namespace APiDocsToHtml
         public static readonly char STREAM_Separator = Path.DirectorySeparatorChar;
 
         // Streaming macros for custom APiDocs database convertor
-        private const string STREAM_DocsData = "> DOCUMENT DATA <";
-        private const string STREAM_CategoryMacro = "|>";
-        private const string STREAM_ReadonlyCategoryEndingMacro = "<|";
-        private const string STREAM_ElementMacro = "|#";
+        private const string STREAM_DOCS_DATA = "> DOCUMENT DATA <";
+        private const string STREAM_MACRO_CATEGORY_START = "|>";
+        private const string STREAM_MACRO_CATEGORY_READONLY_END = "<|";
+        private const string STREAM_MACRO_ELEMENT_START = "|#";
+        private const string STREAM_MACRO_IGNORE_LINES_START = "|NEW_LINE_IGNORE_START";
+        private const string STREAM_MACRO_IGNORE_LINES_END = "|NEW_LINE_IGNORE_END";
 
         /// <summary>
         /// Load specific document from the database (See documentation for syntax rules)
@@ -113,54 +115,68 @@ namespace APiDocsToHtml
         /// </summary>
         private void ApiLoadDataFromFile(string path, ref List<APiCategory> apiCat)
         {
-            // The reading type will be tweaked, optimized and changed in a future once its required...
             bool readingCategories = false;
             APiElement readingElement = null;
             APiCategory readingCategory = null;
+            bool ignoreNewLine = false;
 
             string[] lines = File.ReadAllLines(path);
             for (int i = 0; i < lines.Length; i++)
             {
-                string l = lines[i];
-                if (!readingCategories && l.Trim() == STREAM_DocsData)
+                string line = lines[i];
+
+                if (readingCategories == false)
                 {
-                    readingCategories = true;
+                    if(line.Trim() == STREAM_DOCS_DATA)
+                        readingCategories = true;
+
                     continue;
                 }
-                // We might be reading some kind of docs preferences etc...
-                else if (readingCategories)
+
+                if (line.Trim().StartsWith(STREAM_MACRO_CATEGORY_START))
                 {
-                    if (l.Trim().StartsWith(STREAM_CategoryMacro))
+                    CheckForCurrentCategory(apiCat, readingCategory, readingElement);
+                    readingElement = null;
+                    readingCategory = new APiCategory(ReturnPlainText(line, STREAM_MACRO_CATEGORY_START), "Category", line.TrimEnd().EndsWith(STREAM_MACRO_CATEGORY_READONLY_END));
+                    if (readingCategory.ReadonlyCategory)
                     {
-                        CheckForCurrentCategory(apiCat, readingCategory, readingElement);
-                        readingElement = null;
-                        readingCategory = new APiCategory(ReturnPlainText(l, STREAM_CategoryMacro), "Category", l.TrimEnd().EndsWith(STREAM_ReadonlyCategoryEndingMacro));
-                        if(readingCategory.ReadonlyCategory)
-                        {
-                            // If the category is marked as ReadOnly, it will only appear as a text in the side-bar without any content
-                            apiCat.Add(readingCategory);
-                            readingCategory = null;
-                        }
-                        continue;
+                        // If the category is marked as ReadOnly, it will only appear as a text in the side-bar without any content
+                        apiCat.Add(readingCategory);
+                        readingCategory = null;
                     }
-                    // Reading the actual category elements
-                    if (readingCategory != null)
+                    continue;
+                }
+
+                // Reading the actual category elements
+                if (readingCategory != null)
+                {
+                    bool sw = line.TrimStart().StartsWith(STREAM_MACRO_ELEMENT_START);
+                    if (sw)
                     {
-                        bool sw = l.TrimStart().StartsWith(STREAM_ElementMacro);
-                        if (sw)
+                        if (readingElement != null && sw)
                         {
-                            if (readingElement != null && sw)
-                            {
-                                readingCategory.pageElements.Add(readingElement);
-                                readingElement = null;
-                            }
-                            if (ReturnElement(l, out string cl, out string cont))
-                                readingElement = new APiElement(cl.Remove(0, STREAM_ElementMacro.Length), cont);
-                            else if (readingElement != null)
-                                readingElement = null;
+                            readingCategory.pageElements.Add(readingElement);
+                            readingElement = null;
+                            ignoreNewLine = false;
                         }
-                        else if (readingElement != null && !sw)
-                            readingElement.idText += "\n" + l;
+
+                        if (ReturnElement(line, out string idclass, out string idcontent))
+                            readingElement = new APiElement(idclass.Remove(0, STREAM_MACRO_ELEMENT_START.Length), idcontent);
+                        else if (readingElement != null)
+                            readingElement = null;
+                    }
+                    else if (readingElement != null)
+                    {
+                        if(ignoreNewLine == false && line.Trim().StartsWith(STREAM_MACRO_IGNORE_LINES_START))
+                            ignoreNewLine = true;
+                        else if (line.Trim().StartsWith(STREAM_MACRO_IGNORE_LINES_END))
+                            ignoreNewLine = false;
+                        else
+                        {
+                            if (ignoreNewLine == false)
+                                readingElement.idText += "\n";
+                            readingElement.idText += line;
+                        }
                     }
                 }
             }
@@ -281,7 +297,8 @@ namespace APiDocsToHtml
 
         #region Private Helpers
 
-        private string ReturnPlainText(string fullEntry, string removeMacro) => fullEntry.Replace(removeMacro, "").Replace(STREAM_ReadonlyCategoryEndingMacro,"").TrimEnd();
+        private string ReturnPlainText(string fullEntry, string removeMacro)
+            => fullEntry.Replace(removeMacro, "").Replace(STREAM_MACRO_CATEGORY_READONLY_END,"").TrimEnd();
         
         private bool ReturnElement(string fullEntry, out string idClass, out string idContent)
         {
