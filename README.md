@@ -135,6 +135,19 @@ See the following example
 You can also create spaces!	And tabs!
 
 <b>You can also use html macros!</b> <i>Yeah!</i>
+
+Create tables! For instance:
+|NEW_LINE_IGNORE_START
+<table>
+  <tr>
+    <th>Hello</th>
+  </tr>
+  <tr>
+    <td>World</td>
+  </tr>
+</table>
+|NEW_LINE_IGNORE_END
+Use the NEW_LINE macros to ignore new-line parsing if using html-specific commands.
 |#
 
 |#Code=And this is code...
@@ -156,6 +169,7 @@ It might look complicated at a first sight, but believe me, it's easy! Check the
 - Element syntax is as follows: **|#STYLECLASS=CONTENT** (use regular tabs/line breaks to create a much organized content)
 - The only available style classes are as follow: **Title, Text, Code**
 - It's fine to use blank spaces for better organisation
+- Use `|NEW_LINE_IGNORE_START` and `|NEW_LINE_IGNORE_START` to ignore new-line parsing. See in the example above - if this macro wouldn't be used, there would be a huge gap between the table and the rest of the content
 - There are some styling options for custom code-formation:
     - Code-type: `<ct></c>`
     - Code-comment: `<cc></c>`
